@@ -10,20 +10,40 @@ services:
       - "5432:5432"
     volumes:
       - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d mocktest"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
-  api:
-    build: .
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/mocktest?schema=public
-      JWT_SECRET: change-me
+      JWT_SECRET: change-me-to-a-long-random-string
       JWT_EXPIRES_IN: 7d
       K8S_PROVISIONER_URL: ""
       PORT: 4000
     ports:
       - "4000:4000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:4000
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - backend
 
 volumes:
   dbdata:

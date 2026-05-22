@@ -18,9 +18,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
           <Link to="/" className="flex items-center gap-2 font-semibold">
             <Boxes className="h-5 w-5 text-primary" />
-            <span>K8sPrep</span>
+            <span>KubeDrill</span>
           </Link>
           <nav className="hidden items-center gap-1 md:flex">
+            <Link
+              to="/about"
+              className="rounded-md px-3 py-1.5 text-sm hover:bg-accent"
+              activeProps={{ className: "bg-accent text-accent-foreground" }}
+            >
+              About
+            </Link>
             {user && (
               <>
                 <Link
@@ -73,6 +80,34 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
       <main className="mx-auto max-w-7xl px-4 py-8">{children}</main>
+      <footer className="border-t border-border">
+        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 text-sm text-muted-foreground md:grid-cols-[1.2fr_0.8fr_0.8fr]">
+          <div>
+            <div className="flex items-center gap-2 font-semibold text-foreground">
+              <Boxes className="h-4 w-4 text-primary" />
+              <span>KubeDrill</span>
+            </div>
+            <p className="mt-2 max-w-md">
+              Kubernetes exam preparation with timed CKA, CKS and interview-style
+              question sessions from beginner to hard.
+            </p>
+          </div>
+          <div>
+            <div className="font-medium text-foreground">Practice</div>
+            <div className="mt-2 grid gap-1">
+              <Link to="/dashboard" className="hover:text-foreground">Dashboard</Link>
+              <Link to="/about" className="hover:text-foreground">About</Link>
+            </div>
+          </div>
+          <div>
+            <div className="font-medium text-foreground">Focus areas</div>
+            <p className="mt-2">
+              RBAC, NetworkPolicy, storage, troubleshooting, security context,
+              services, probes and controller behavior.
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

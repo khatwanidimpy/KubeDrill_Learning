@@ -1,6 +1,7 @@
-# Mock Test Platform — Auth Backend
+# Mock Test Platform - Backend
 
-Node.js + Express + TypeScript + PostgreSQL + Prisma + JWT.
+Node.js + Express + TypeScript + PostgreSQL + Prisma + JWT backend for auth,
+interview CRUD, submissions, and attempt history.
 
 ## Setup (local)
 
@@ -25,21 +26,41 @@ Migrations run automatically on container start.
 
 ## Endpoints
 
-### POST /register
+### Auth
+
+#### POST /register
 ```json
 { "name": "Alice", "email": "alice@test.com", "password": "secret123", "role": "STUDENT" }
 ```
-→ `201 { user, token }`
+Returns `201 { user, token }`.
 
-### POST /login
+#### POST /login
 ```json
 { "email": "alice@test.com", "password": "secret123" }
 ```
-→ `200 { user, token }`
+Returns `200 { user, token }`.
 
-### GET /me  (protected)
+#### GET /me
 Header: `Authorization: Bearer <token>`
-→ `200 { user }`
+Returns `200 { user }`.
+
+### Interviews
+
+All interview endpoints require `Authorization: Bearer <token>`.
+Admin-only routes require the user role to be `ADMIN`.
+
+```text
+GET    /interviews                         -> { interviews }
+GET    /interviews/:id                     -> { interview }
+POST   /interviews                         -> { interview }  admin
+PUT    /interviews/:id                     -> { interview }  admin
+DELETE /interviews/:id                     -> 204            admin
+POST   /interviews/:id/submit              -> { result }
+GET    /results                            -> { results }
+GET    /results/:id                        -> { result }
+```
+
+Students only see published interviews. Admins can see and edit drafts.
 
 ## cURL examples
 
@@ -62,7 +83,7 @@ backend/
 ├── prisma/schema.prisma
 ├── src/
 │   ├── config/      # env, prisma client
-│   ├── controllers/ # auth handlers
+│   ├── controllers/ # route handlers
 │   ├── middleware/  # auth, error
 │   ├── routes/      # express routers
 │   ├── utils/       # jwt

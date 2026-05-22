@@ -1,12 +1,21 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { interviewsApi } from "@/lib/interviews-api";
-import type { Interview, AttemptResult } from "@/lib/types";
-import { Loader2, Play, Trophy } from "lucide-react";
+import { k8sPlatformApi, trainingCatalog } from "@/lib/k8s-platform-api";
+import type { TrainingMode, TrainingTrack } from "@/lib/types";
+import {
+  Activity,
+  FlaskConical,
+  Gauge,
+  Loader2,
+  Play,
+  ShieldCheck,
+  Sparkles,
+  Trophy,
+} from "lucide-react";
 
 export const Route = createFileRoute("/dashboard")({ component: DashboardPage });
 
@@ -18,95 +27,139 @@ function DashboardPage() {
   );
 }
 
+const modeCopy: Record<TrainingMode, { label: string; icon: typeof ShieldCheck }> = {
+  MOCK_EXAM: { label: "Mock Exam", icon: ShieldCheck },
+  PRACTICE_LAB: { label: "Practice Lab", icon: FlaskConical },
+  PLAYGROUND: { label: "Live Questions", icon: Sparkles },
+};
+
 function Dashboard() {
-  const [interviews, setInterviews] = useState<Interview[] | null>(null);
-  const [history, setHistory] = useState<AttemptResult[]>([]);
+  const router = useRouter();
+  const [starting, setStarting] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const [list, hist] = await Promise.all([
-          interviewsApi.list(),
-          interviewsApi.history(),
-        ]);
-        setInterviews(list.filter((i) => i.published));
-        setHistory(hist);
-      } catch (e) {
-        setError((e as Error).message);
-      }
-    })();
-  }, []);
-
-  if (error) return <p className="text-destructive">{error}</p>;
-  if (!interviews) {
-    return <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Loading…</div>;
+  async function start(track: TrainingTrack) {
+    setStarting(track.id);
+    setError(null);
+    try {
+      const session = await k8sPlatformApi.createSession(track.id, track.mode);
+      sessionStorage.setItem(`lab_session:${session.id}`, JSON.stringify(session));
+      router.navigate({ to: "/session/$id", params: { id: session.id } });
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setStarting(null);
+    }
   }
 
   return (
-    <div className="space-y-10">
-      <section>
-        <div className="mb-4 flex items-end justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold">Mock interviews</h1>
-            <p className="text-sm text-muted-foreground">Pick a set to begin.</p>
-          </div>
-        </div>
-        {interviews.length === 0 ? (
-          <p className="rounded-md border border-border bg-card p-6 text-sm text-muted-foreground">
-            No interviews published yet.
+    <div className="space-y-8">
+      <section className="grid gap-4 lg:grid-cols-[1.4fr_0.8fr]">
+        <div>
+          <h1 className="text-2xl font-semibold">Kubernetes exam practice</h1>
+          <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+            Pick a question track, answer under a timer, reveal the correct solution,
+            then click More questions to keep practicing.
           </p>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {interviews.map((i) => (
-              <div key={i.id} className="flex flex-col rounded-xl border border-border bg-card p-5">
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary">{i.category}</Badge>
-                  <Badge variant="outline">{i.difficulty}</Badge>
+        </div>
+        <div className="grid grid-cols-3 gap-2 rounded-lg border border-border bg-card p-3">
+          {[
+            { label: "Generator", value: "1M+", icon: Gauge },
+            { label: "Sessions", value: "0", icon: Activity },
+            { label: "Rank", value: "-", icon: Trophy },
+          ].map(({ label, value, icon: Icon }) => (
+            <div key={label} className="rounded-md bg-muted/50 p-3">
+              <Icon className="h-4 w-4 text-primary" />
+              <div className="mono mt-2 text-lg font-semibold">{value}</div>
+              <div className="text-xs text-muted-foreground">{label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {error && <p className="text-sm text-destructive">{error}</p>}
+
+      <section className="grid gap-4 md:grid-cols-3">
+        {trainingCatalog.map((track) => (
+          <TrackCard
+            key={track.id}
+            track={track}
+            starting={starting === track.id}
+            onStart={() => start(track)}
+          />
+        ))}
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-[1fr_1fr]">
+        <div className="rounded-lg border border-border bg-card p-5">
+          <h2 className="text-lg font-semibold">Skill weaknesses</h2>
+          <div className="mt-4 space-y-3">
+            {["NetworkPolicy", "RBAC", "Runtime security", "Troubleshooting"].map((skill, index) => (
+              <div key={skill}>
+                <div className="flex justify-between text-sm">
+                  <span>{skill}</span>
+                  <span className="mono text-muted-foreground">{45 + index * 9}%</span>
                 </div>
-                <h3 className="mt-3 text-lg font-semibold">{i.title}</h3>
-                <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{i.description}</p>
-                <div className="mt-3 text-xs text-muted-foreground">
-                  {i.questions.length} questions · {i.durationMinutes} min
+                <div className="mt-1 h-2 rounded-full bg-muted">
+                  <div
+                    className="h-2 rounded-full bg-primary"
+                    style={{ width: `${45 + index * 9}%` }}
+                  />
                 </div>
-                <Link to="/interview/$id" params={{ id: i.id }} className="mt-4">
-                  <Button className="w-full"><Play className="mr-1 h-4 w-4" /> Start</Button>
-                </Link>
               </div>
             ))}
           </div>
-        )}
-      </section>
-
-      <section>
-        <h2 className="mb-3 text-xl font-semibold">Your history</h2>
-        {history.length === 0 ? (
-          <p className="rounded-md border border-border bg-card p-6 text-sm text-muted-foreground">
-            No attempts yet. Start an interview above.
-          </p>
-        ) : (
-          <ul className="divide-y divide-border rounded-xl border border-border bg-card">
-            {history.map((r) => (
-              <li key={r.id} className="flex items-center justify-between p-4">
-                <div>
-                  <div className="font-medium">{r.interviewTitle}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {new Date(r.submittedAt).toLocaleString()} · {r.correct}/{r.total}
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="mono inline-flex items-center gap-1.5 text-sm">
-                    <Trophy className="h-4 w-4 text-warning" /> {r.score}%
-                  </div>
-                  <Link to="/results/$id" params={{ id: r.id }}>
-                    <Button size="sm" variant="outline">View</Button>
-                  </Link>
-                </div>
-              </li>
-            ))}
+        </div>
+        <div className="rounded-lg border border-border bg-card p-5">
+          <h2 className="text-lg font-semibold">Live question session</h2>
+          <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
+            <li>Timed Kubernetes certification practice without cluster setup.</li>
+            <li>Each question includes a scenario, answer, explanation and useful commands.</li>
+            <li>Click More questions to append fresh non-duplicate exam-style questions instantly.</li>
+            <li>Question difficulty moves from Beginner to Medium to Hard.</li>
+            <li>Mark answers as correct or missed to track session score.</li>
           </ul>
-        )}
+        </div>
       </section>
+    </div>
+  );
+}
+
+function TrackCard({
+  track,
+  starting,
+  onStart,
+}: {
+  track: TrainingTrack;
+  starting: boolean;
+  onStart: () => void;
+}) {
+  const mode = modeCopy[track.mode];
+  const Icon = mode.icon;
+
+  return (
+    <div className="flex min-h-[280px] flex-col rounded-lg border border-border bg-card p-5">
+      <div className="flex items-center justify-between gap-2">
+        <Badge variant="secondary" className="gap-1">
+          <Icon className="h-3.5 w-3.5" /> {mode.label}
+        </Badge>
+        <Badge variant="outline">{track.difficulty}</Badge>
+      </div>
+      <h3 className="mt-4 text-lg font-semibold">{track.title}</h3>
+      <p className="mt-2 text-sm text-muted-foreground">{track.description}</p>
+      <div className="mt-4 flex flex-wrap gap-2 text-xs text-muted-foreground">
+        <span>{track.durationMinutes} min</span>
+        <span>{track.questions?.length ?? 0} starter questions</span>
+      </div>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {Array.from(new Set(track.tasks.flatMap((task) => task.skills))).slice(0, 4).map((skill) => (
+          <Badge key={skill} variant="outline">{skill}</Badge>
+        ))}
+      </div>
+      <Button className="mt-auto" onClick={onStart} disabled={starting}>
+        {starting ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Play className="mr-1 h-4 w-4" />}
+        Start
+      </Button>
     </div>
   );
 }

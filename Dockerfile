@@ -1,18 +1,15 @@
-FROM node:20-alpine AS build
+FROM node:20-alpine
+
 WORKDIR /app
+
+ARG VITE_API_URL=http://localhost:4000
+ENV VITE_API_URL=$VITE_API_URL
+
 COPY package*.json bun.lock* ./
 RUN npm install -g bun && bun install
-COPY . .
-RUN bun run build
 
-FROM nginx:alpine
-COPY --from=build /app/dist /usr/share/nginx/html
-COPY <<'EOF' /etc/nginx/conf.d/default.conf
-server {
-  listen 80;
-  root /usr/share/nginx/html;
-  index index.html;
-  location / { try_files $uri $uri/ /index.html; }
-}
-EOF
-EXPOSE 80
+COPY . .
+
+EXPOSE 8080
+
+CMD ["bun", "run", "dev", "--host", "0.0.0.0", "--port", "8080"]

@@ -69,3 +69,66 @@ export interface AttemptResult {
   submittedAt: string;
   answers: AttemptAnswer[];
 }
+
+export type TrainingMode = "MOCK_EXAM" | "PRACTICE_LAB" | "PLAYGROUND";
+
+export type SessionStatus =
+  | "PROVISIONING"
+  | "READY"
+  | "EXPIRED"
+  | "FAILED"
+  | "PROVISIONER_REQUIRED";
+
+export interface ValidationRule {
+  id: string;
+  label: string;
+  points: number;
+  command: string;
+}
+
+export interface LabTask {
+  id: string;
+  title: string;
+  objective: string;
+  category: Category;
+  difficulty: Difficulty;
+  estimatedMinutes: number;
+  skills: string[];
+  validationRules: ValidationRule[];
+}
+
+export interface TrainingTrack {
+  id: string;
+  mode: TrainingMode;
+  title: string;
+  description: string;
+  durationMinutes: number;
+  difficulty: Difficulty;
+  tasks: LabTask[];
+  questions?: PracticeQuestion[];
+}
+
+export interface LabSession {
+  id: string;
+  mode: TrainingMode;
+  title: string;
+  status: SessionStatus;
+  namespace?: string;
+  terminalUrl?: string;
+  expiresAt?: string;
+  tasks: LabTask[];
+  questions?: PracticeQuestion[];
+  message?: string;
+}
+
+export interface PracticeQuestion {
+  id: string;
+  category: Category;
+  difficulty: Difficulty;
+  prompt: string;
+  scenario: string;
+  answer: string;
+  explanation: string;
+  commands?: string[];
+  tags: string[];
+}

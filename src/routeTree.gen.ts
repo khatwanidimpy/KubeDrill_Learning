@@ -13,7 +13,9 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SessionIdRouteImport } from './routes/session.$id'
 import { Route as ResultsIdRouteImport } from './routes/results.$id'
 import { Route as InterviewIdRouteImport } from './routes/interview.$id'
 
@@ -37,9 +39,19 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SessionIdRoute = SessionIdRouteImport.update({
+  id: '/session/$id',
+  path: '/session/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResultsIdRoute = ResultsIdRouteImport.update({
@@ -55,29 +67,35 @@ const InterviewIdRoute = InterviewIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/session/$id': typeof SessionIdRoute
   '/interview/$id': typeof InterviewIdRoute
   '/results/$id': typeof ResultsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/session/$id': typeof SessionIdRoute
   '/interview/$id': typeof InterviewIdRoute
   '/results/$id': typeof ResultsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/session/$id': typeof SessionIdRoute
   '/interview/$id': typeof InterviewIdRoute
   '/results/$id': typeof ResultsIdRoute
 }
@@ -85,38 +103,46 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/admin'
     | '/dashboard'
     | '/login'
     | '/register'
+    | '/session/$id'
     | '/interview/$id'
     | '/results/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
     | '/admin'
     | '/dashboard'
     | '/login'
     | '/register'
+    | '/session/$id'
     | '/interview/$id'
     | '/results/$id'
   id:
     | '__root__'
     | '/'
+    | '/about'
     | '/admin'
     | '/dashboard'
     | '/login'
     | '/register'
+    | '/session/$id'
     | '/interview/$id'
     | '/results/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRoute
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
+  SessionIdRoute: typeof SessionIdRoute
   InterviewIdRoute: typeof InterviewIdRoute
   ResultsIdRoute: typeof ResultsIdRoute
 }
@@ -151,11 +177,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/session/$id': {
+      id: '/session/$id'
+      path: '/session/$id'
+      fullPath: '/session/$id'
+      preLoaderRoute: typeof SessionIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/results/$id': {
@@ -177,10 +217,12 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   AdminRoute: AdminRoute,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
+  SessionIdRoute: SessionIdRoute,
   InterviewIdRoute: InterviewIdRoute,
   ResultsIdRoute: ResultsIdRoute,
 }

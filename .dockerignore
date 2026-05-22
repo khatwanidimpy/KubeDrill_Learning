@@ -1,0 +1,10 @@
+.git
+.lovable
+node_modules
+dist
+.env
+backend/node_modules
+backend/dist
+backend/.env
+backend/.env.*
+backend/docker-compose.yml

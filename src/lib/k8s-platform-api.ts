@@ -1,5 +1,6 @@
 import type { LabSession, PracticeQuestion, TrainingMode, TrainingTrack } from "./types";
 
+
 const seedQuestions: PracticeQuestion[] = [
   {
     id: "q-networkpolicy-dns",

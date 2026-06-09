@@ -10,8 +10,8 @@ import { requireAuth, requireRole } from "../middleware/auth";
 
 const router = Router();
 
-router.get("/blog-posts", requireAuth, listBlogPosts);
-router.get("/blog-posts/:slug", requireAuth, getBlogPost);
+router.get("/blog-posts", listBlogPosts);
+router.get("/blog-posts/:slug", getBlogPost);
 router.post("/blog-posts", requireAuth, requireRole("ADMIN"), createBlogPost);
 router.put("/blog-posts/:id", requireAuth, requireRole("ADMIN"), updateBlogPost);
 router.delete("/blog-posts/:id", requireAuth, requireRole("ADMIN"), deleteBlogPost);

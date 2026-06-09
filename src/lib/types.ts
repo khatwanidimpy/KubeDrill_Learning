@@ -54,6 +54,20 @@ export interface Interview {
   questions: Question[];
 }
 
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  category: Category;
+  published: boolean;
+  authorName: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string | null;
+}
+
 export interface AttemptAnswer {
   questionId: string;
   value: string | number;

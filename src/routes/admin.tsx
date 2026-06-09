@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -91,14 +91,21 @@ function Admin() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Admin</h1>
           <p className="text-sm text-muted-foreground">Create and manage interview sets.</p>
         </div>
-        <Button onClick={() => setEditing(blankInterview())}>
-          <Plus className="mr-1 h-4 w-4" /> New interview
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Link to="/blog/create">
+            <Button variant="outline">
+              <Plus className="mr-1 h-4 w-4" /> New blog post
+            </Button>
+          </Link>
+          <Button onClick={() => setEditing(blankInterview())}>
+            <Plus className="mr-1 h-4 w-4" /> New interview
+          </Button>
+        </div>
       </div>
 
       {list.length === 0 ? (

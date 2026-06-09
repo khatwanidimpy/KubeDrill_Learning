@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcrypt";
 import { z } from "zod";
 import { prisma } from "../config/prisma";
+import { env } from "../config/env";
 import { signToken } from "../utils/jwt";
 
 const registerSchema = z.object({
@@ -9,6 +10,7 @@ const registerSchema = z.object({
   email: z.string().email().max(255),
   password: z.string().min(8).max(128),
   role: z.enum(["STUDENT", "ADMIN"]).optional(),
+  adminCode: z.string().optional(),
 });
 
 const loginSchema = z.object({
@@ -19,6 +21,10 @@ const loginSchema = z.object({
 export async function register(req: Request, res: Response, next: NextFunction) {
   try {
     const data = registerSchema.parse(req.body);
+
+    if (data.role === "ADMIN" && data.adminCode !== env.ADMIN_ACCESS_CODE) {
+      return res.status(403).json({ error: "Invalid admin access code" });
+    }
 
     const existing = await prisma.user.findUnique({ where: { email: data.email } });
     if (existing) return res.status(409).json({ error: "Email already registered" });

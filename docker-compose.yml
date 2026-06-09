@@ -25,6 +25,7 @@ services:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/mocktest?schema=public
       JWT_SECRET: change-me-to-a-long-random-string
       JWT_EXPIRES_IN: 7d
+      ADMIN_ACCESS_CODE: kubedrill-admin
       K8S_PROVISIONER_URL: ""
       PORT: 4000
     ports:

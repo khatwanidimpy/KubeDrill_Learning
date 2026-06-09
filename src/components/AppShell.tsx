@@ -10,7 +10,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { theme, toggle, apply } = useTheme();
   const router = useRouter();
 
-  useEffect(() => { apply(); }, [apply]);
+  useEffect(() => {
+    apply();
+  }, [apply]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -22,11 +24,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </Link>
           <nav className="hidden items-center gap-1 md:flex">
             <Link
+              to="/"
+              className="rounded-md px-3 py-1.5 text-sm hover:bg-accent"
+              activeProps={{ className: "bg-accent text-accent-foreground" }}
+            >
+              Home
+            </Link>
+            <Link
               to="/about"
               className="rounded-md px-3 py-1.5 text-sm hover:bg-accent"
               activeProps={{ className: "bg-accent text-accent-foreground" }}
             >
               About
+            </Link>
+            <Link
+              to="/blog"
+              className="rounded-md px-3 py-1.5 text-sm hover:bg-accent"
+              activeProps={{ className: "bg-accent text-accent-foreground" }}
+            >
+              Blog
             </Link>
             {user && (
               <>
@@ -59,21 +75,28 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </Button>
             {user ? (
               <>
-                <span className="hidden text-sm text-muted-foreground sm:inline">
-                  {user.name}
-                </span>
+                <span className="hidden text-sm text-muted-foreground sm:inline">{user.name}</span>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => { logout(); router.navigate({ to: "/login" }); }}
+                  onClick={() => {
+                    logout();
+                    router.navigate({ to: "/login" });
+                  }}
                 >
                   <LogOut className="mr-1 h-4 w-4" /> Logout
                 </Button>
               </>
             ) : (
               <>
-                <Link to="/login"><Button variant="ghost" size="sm">Login</Button></Link>
-                <Link to="/register"><Button size="sm">Sign up</Button></Link>
+                <Link to="/login">
+                  <Button variant="ghost" size="sm">
+                    Login
+                  </Button>
+                </Link>
+                <Link to="/register">
+                  <Button size="sm">Sign up</Button>
+                </Link>
               </>
             )}
           </div>
@@ -88,22 +111,32 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <span>KubeDrill</span>
             </div>
             <p className="mt-2 max-w-md">
-              Kubernetes exam preparation with timed CKA, CKS and interview-style
-              question sessions from beginner to hard.
+              Kubernetes exam preparation with timed CKA, CKS and interview-style question sessions
+              from beginner to hard.
             </p>
           </div>
           <div>
             <div className="font-medium text-foreground">Practice</div>
             <div className="mt-2 grid gap-1">
-              <Link to="/dashboard" className="hover:text-foreground">Dashboard</Link>
-              <Link to="/about" className="hover:text-foreground">About</Link>
+              <Link to="/" className="hover:text-foreground">
+                Home
+              </Link>
+              <Link to="/dashboard" className="hover:text-foreground">
+                Dashboard
+              </Link>
+              <Link to="/about" className="hover:text-foreground">
+                About
+              </Link>
+              <Link to="/blog" className="hover:text-foreground">
+                Blog
+              </Link>
             </div>
           </div>
           <div>
             <div className="font-medium text-foreground">Focus areas</div>
             <p className="mt-2">
-              RBAC, NetworkPolicy, storage, troubleshooting, security context,
-              services, probes and controller behavior.
+              RBAC, NetworkPolicy, storage, troubleshooting, security context, services, probes and
+              controller behavior.
             </p>
           </div>
         </div>

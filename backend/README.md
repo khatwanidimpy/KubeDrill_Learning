@@ -15,15 +15,6 @@ npm run dev
 
 API runs at `http://localhost:4000`.
 
-## Setup (Docker)
-
-```bash
-cd backend
-docker compose up --build
-```
-
-Migrations run automatically on container start.
-
 ## Endpoints
 
 ### Auth
@@ -90,6 +81,5 @@ backend/
 │   ├── app.ts
 │   └── server.ts
 ├── Dockerfile
-├── docker-compose.yml
 └── .env.example
 ```
